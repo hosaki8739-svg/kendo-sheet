@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>剣道部 目標管理シート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1008;
+    --paper: #f5f0e8;
+    --paper-dark: #ede5d0;
+    --vermillion: #c0392b;
+    --gold: #b8860b;
+    --gold-light: #d4a017;
+    --steel: #4a5568;
+    --steel-light: #718096;
+    --accent-blue: #2c5282;
+    --shadow: rgba(26,16,8,0.15);
+    --glow: rgba(180,134,11,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background-color: #1a1008;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(180,134,11,0.04) 39px, rgba(180,134,11,0.04) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(180,134,11,0.04) 39px, rgba(180,134,11,0.04) 40px);
+    min-height: 100vh;
+    padding: 32px 16px;
+    color: var(--ink);
+  }
+
+  .wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .header-kamon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 12px;
+    display: block;
+  }
+
+  .header-en {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .header-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 900;
+    color: var(--paper);
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    text-shadow: 0 2px 12px rgba(180,134,11,0.3);
+  }
+
+  .header-title span {
+    color: var(--gold-light);
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    color: var(--steel-light);
+    margin-top: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-track {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(180,134,11,0.2);
+    border-radius: 4px;
+    height: 6px;
+    margin: 20px 0 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--vermillion));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-align: right;
+  }
+
+  /* ===== SECTIONS ===== */
+  .section {
+    background: var(--paper);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05);
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .section:nth-child(1) { animation-delay: 0.1s; }
+  .section:nth-child(2) { animation-delay: 0.2s; }
+  .section:nth-child(3) { animation-delay: 0.3s; }
+  .section:nth-child(4) { animation-delay: 0.4s; }
+  .section:nth-child(5) { animation-delay: 0.5s; }
+  .section:nth-child(6) { animation-delay: 0.6s; }
+
+  .section-header {
+    background: var(--ink);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .section-header:hover { background: #2a1f10; }
+
+  .section-number {
+    width: 28px;
+    height: 28px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--paper);
+    letter-spacing: 0.08em;
+    flex: 1;
+  }
+
+  .section-toggle {
+    color: var(--gold);
+    font-size: 18px;
+    transition: transform 0.3s;
+  }
+
+  .section-toggle.open { transform: rotate(180deg); }
+
+  .section-body {
+    padding: 24px 20px;
+    display: block;
+  }
+
+  .section-body.collapsed { display: none; }
+
+  /* ===== FORM ELEMENTS ===== */
+  .field-group {
+    margin-bottom: 20px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--steel);
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .field-label .required {
+    color: var(--vermillion);
+    margin-left: 4px;
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--steel-light);
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--paper-dark);
+    border-radius: 4px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.6;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  @media (max-width: 600px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ===== RANK SELECT ===== */
+  .rank-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .rank-btn {
+    padding: 8px 16px;
+    border: 1.5px solid var(--paper-dark);
+    border-radius: 4px;
+    background: white;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    color: var(--steel);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .rank-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .rank-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ===== GOAL MATRIX ===== */
+  .goal-matrix {
+    border: 1.5px solid var(--paper-dark);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .matrix-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 1fr;
+    border-bottom: 1px solid var(--paper-dark);
+  }
+
+  .matrix-row:last-child { border-bottom: none; }
+
+  .matrix-header {
+    background: var(--ink);
+    color: var(--gold);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+  }
+
+  .matrix-cell {
+    padding: 12px;
+    border-left: 1px solid var(--paper-dark);
+  }
+
+  .matrix-cell input, .matrix-cell textarea {
+    border: 1px solid #e2ddd5;
+    font-size: 13px;
+    min-height: 60px;
+  }
+
+  .matrix-row-label {
+    padding: 12px 14px;
+    background: var(--paper-dark);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.05em;
+  }
+
+  /* ===== SLIDER ===== */
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 6px;
+    background: var(--paper-dark);
+    border-radius: 3px;
+    outline: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.1s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  .slider-value {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+    width: 44px;
+    text-align: right;
+  }
+
+  /* ===== SCHEDULE TABLE ===== */
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .schedule-table th {
+    background: var(--ink);
+    color: var(--gold);
+    padding: 8px 12px;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: left;
+  }
+
+  .schedule-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--paper-dark);
+    vertical-align: top;
+  }
+
+  .schedule-table tr:nth-child(even) td { background: rgba(0,0,0,0.025); }
+
+  .schedule-table input, .schedule-table select, .schedule-table textarea {
+    border: 1px solid #e2ddd5;
+    font-size: 12px;
+    padding: 6px 10px;
+    min-height: unset;
+  }
+
+  .add-row-btn {
+    background: none;
+    border: 1.5px dashed var(--steel-light);
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--steel);
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+    transition: all 0.2s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .add-row-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--glow); }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--vermillion);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    line-height: 1;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+
+  .del-btn:hover { opacity: 1; }
+
+  /* ===== MIND SET CARDS ===== */
+  .mindset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  .mindset-card {
+    background: white;
+    border: 1.5px solid var(--paper-dark);
+    border-radius: 6px;
+    padding: 14px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .mindset-card:hover { border-color: var(--gold); }
+
+  .mindset-card-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--steel);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .mindset-rating {
+    display: flex;
+    gap: 4px;
+  }
+
+  .star {
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--paper-dark);
+    transition: color 0.15s, transform 0.1s;
+    user-select: none;
+  }
+
+  .star:hover, .star.lit { color: var(--gold); transform: scale(1.1); }
+
+  /* ===== SUBMIT ===== */
+  .submit-area {
+    text-align: center;
+    padding: 32px 20px;
+    animation: fadeUp 0.8s ease 0.7s both;
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--gold), #8b6914);
+    color: var(--paper);
+    border: none;
+    padding: 16px 56px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,0.5); }
+  .submit-btn:hover::before { opacity: 1; }
+  .submit-btn:active { transform: translateY(0); }
+
+  .save-btn {
+    background: transparent;
+    border: 1.5px solid rgba(180,134,11,0.4);
+    color: var(--gold);
+    padding: 12px 32px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.2s;
+  }
+
+  .save-btn:hover { background: rgba(180,134,11,0.1); border-color: var(--gold); }
+
+  /* ===== PRINT VIEW ===== */
+  .print-btn {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+    padding: 10px 24px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.2s;
+  }
+
+  .print-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 12px 28px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Noto Serif JP', serif;
+    letter-spacing: 0.1em;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: transform 0.4s cubic-bezier(.175,.885,.32,1.275);
+    z-index: 1000;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: var(--paper-dark); }
+  .divider-text { font-size: 11px; color: var(--steel-light); letter-spacing: 0.15em; }
+
+  /* ===== BADGE ===== */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .badge-red { background: rgba(192,57,43,0.12); color: var(--vermillion); }
+  .badge-gold { background: rgba(180,134,11,0.12); color: var(--gold); }
+  .badge-blue { background: rgba(44,82,130,0.12); color: var(--accent-blue); }
+
+  /* ===== CHARACTER COUNT ===== */
+  .char-count {
+    font-size: 11px;
+    color: var(--steel-light);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: white; padding: 0; }
+    .section { box-shadow: none; border: 1px solid #ccc; }
+    .section-header { background: #333 !important; }
+    .section-body.collapsed { display: block !important; }
+    .submit-area, .save-btn, .print-btn, .add-row-btn, .del-btn { display: none !important; }
+    .progress-track { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <svg class="header-kamon" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="30" stroke="#b8860b" stroke-width="1.5"/>
+      <circle cx="32" cy="32" r="24" stroke="#b8860b" stroke-width="0.5" stroke-dasharray="3 3"/>
+      <!-- crossed shinai -->
+      <line x1="16" y1="48" x2="48" y2="16" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="16" x2="48" y2="48" stroke="#b8860b" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="32" cy="32" r="4" fill="#b8860b"/>
+      <circle cx="32" cy="32" r="2" fill="#1a1008"/>
+    </svg>
+    <div class="header-en">KENDO CLUB — GOAL MANAGEMENT SHEET</div>
+    <h1 class="header-title">剣道部 <span>目標管理</span>シート</h1>
+    <div class="header-subtitle">〜 一本の剣に、すべてを込めろ 〜</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">記入率 0%</div>
+  </div>
+
+  <!-- SECTION 1: 基本情報 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-number">一</div>
+      <div class="section-title">基本情報・プロフィール</div>
+      <div class="section-toggle open">▾</div>
+    </div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div class="field-group">
+          <label class="field-label">氏名<span class="required">*</span></label>
+          <input type="text" id="nameInput" placeholder="山田 一郎" data-required oninput="onNameInput(this)">
+        </div>
+        <div class="field-group">
+          <label class="field-label">学年・組<span class="required">*</span></label>
+          <div style="display:flex;gap:8px">
+            <select data-required onchange="updateProgress()" style="width:100px;flex-shrink:0">
+              <option value="">選択</option>
+              <option>1年</option><option>2年</option><option>3年</option>
+            </select>
+            <input type="text" placeholder="2組" style="flex:1">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">段位・級</label>
+          <select>
+            <option value="">選択</option>
+            <option>無段</option>
+            <option>初段</option><option>二段</option><option>三段</option>
+            <option>1級</option><option>2級</option><option>3級</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">剣道歴</label>
+          <input type="text" placeholder="7年（小学1年から）">
+        </div>
+        <div class="field-group">
+          <label class="field-label">利き手・構え</label>
+          <select>
+            <option value="">選択</option>
+            <option>右利き（上段）</option>
+            <option>右利き（中段）</option>
+            <option>左利き（中段）</option>
+            <option>二刀流</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">記入日</label>
+          <input type="date">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">得意技（最大3つ）</label>
+        <div class="rank-selector" id="wazaSelector">
+          <button class="rank-btn" onclick="toggleWaza(this)">面</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">小手</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">胴</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">突き</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">引き面</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">出小手</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">逆胴</button>
+          <button class="rank-btn" onclick="toggleWaza(this)">払い面</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: チーム目標 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-number">二</div>
+      <div class="section-title">チーム目標（今シーズン）</div>
+      <div class="section-toggle open">▾</div>
+    </div>
+    <div class="section-body">
+      <div class="field-group">
+        <label class="field-label">最重要目標（チーム）<span class="required">*</span></label>
+        <div class="field-hint">例：全国高校総体 ベスト8進出</div>
+        <input type="text" placeholder="インターハイ 県予選 優勝" data-required oninput="updateProgress()">
+      </div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-text">目標の分解</div><div class="divider-line"></div></div>
+
+      <div class="goal-matrix">
+        <div class="matrix-row">
+          <div class="matrix-header">区分</div>
+          <div class="matrix-header" style="border-left:1px solid rgba(255,255,255,0.1)">目標内容</div>
+          <div class="matrix-header" style="border-left:1px solid rgba(255,255,255,0.1)">達成基準・数値</div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">前半戦<span class="badge badge-gold" style="margin-left:6px">4〜7月</span></div>
+          <div class="matrix-cell"><textarea placeholder="地区大会 ベスト4"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="3勝1敗以上"></textarea></div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">後半戦<span class="badge badge-red" style="margin-left:6px">8〜3月</span></div>
+          <div class="matrix-cell"><textarea placeholder="県大会 ベスト8"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="5勝2敗以上"></textarea></div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">チーム強化</div>
+          <div class="matrix-cell"><textarea placeholder="団体戦の連携強化"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="週3回の合同稽古"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: 個人目標 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-number">三</div>
+      <div class="section-title">個人目標（技術・精神・体力）</div>
+      <div class="section-toggle open">▾</div>
+    </div>
+    <div class="section-body">
+
+      <div class="field-group">
+        <label class="field-label">今シーズン最大の個人目標<span class="required">*</span></label>
+        <input type="text" placeholder="個人戦 県ベスト16 / 一本勝ち率 60%以上" data-required oninput="updateProgress()">
+      </div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-text">3軸評価</div><div class="divider-line"></div></div>
+
+      <div class="grid-3">
+        <!-- 技術 -->
+        <div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;color:var(--vermillion);margin-bottom:10px;letter-spacing:.1em">⚔ 技術目標</div>
+          <div class="field-group">
+            <label class="field-label">主要技術課題</label>
+            <textarea placeholder="打突後の残心&#10;足幅の安定" style="min-height:70px"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">習得目標技</label>
+            <input type="text" placeholder="引き胴の精度向上">
+          </div>
+        </div>
+        <!-- 精神 -->
+        <div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;letter-spacing:.1em">🧠 精神目標</div>
+          <div class="field-group">
+            <label class="field-label">心技体の「心」</label>
+            <textarea placeholder="先を取る剣道&#10;試合中の冷静さ" style="min-height:70px"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">克服する弱点</label>
+            <input type="text" placeholder="プレッシャー下での硬さ">
+          </div>
+        </div>
+        <!-- 体力 -->
+        <div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;color:var(--accent-blue);margin-bottom:10px;letter-spacing:.1em">💪 体力目標</div>
+          <div class="field-group">
+            <label class="field-label">フィジカル課題</label>
+            <textarea placeholder="後半戦での体力維持&#10;下半身強化" style="min-height:70px"></textarea>
+          </div>
+          <div class="field-group">
+            <label class="field-label">数値目標</label>
+            <input type="text" placeholder="体重 68kg / 垂直跳 +5cm">
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-text">現状自己評価</div><div class="divider-line"></div></div>
+
+      <div class="mindset-grid" id="mindsetGrid">
+        <!-- dynamically filled -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 4: 稽古計画 -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-number">四</div>
+      <div class="section-title">稽古・強化スケジュール</div>
+      <div class="section-toggle open">▾</div>
+    </div>
+    <div class="section-body">
+
+      <div class="field-group">
+        <label class="field-label">週間稽古計画</label>
+        <div class="field-hint">各曜日の稽古内容・強度を記入してください</div>
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th style="width:80px">曜日</th>
+              <th>稽古種別</th>
+              <th style="width:100px">時間</th>
+              <th style="width:120px">重点項目</th>
+            </tr>
+          </thead>
+          <tbody id="weeklyPlan">
+            <tr>
+              <td><select style="padding:6px 8px;font-size:12px"><option>月</option><option>火</option><option>水</option><option>木</option><option>金</option><option>土</option><option>日</option></select></td>
+              <td><select style="width:100%;padding:6px 8px;font-size:12px"><option>基本稽古</option><option>打込み稽古</option><option>掛かり稽古</option><option>地稽古</option><option>試合稽古</option><option>体力強化</option><option>自主練</option><option>休養</option></select></td>
+              <td><input type="text" placeholder="90分"></td>
+              <td><input type="text" placeholder="面打ち基本"></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="add-row-btn" onclick="addWeeklyRow()">＋ 曜日を追加</button>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">年間大会・目標スケジュール</label>
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th style="width:90px">時期</th>
+              <th>大会・目標イベント</th>
+              <th style="width:130px">目標</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="tournamentPlan">
+          </tbody>
+        </table>
+        <button class="add-row-btn" onclick="addTournamentRow()">＋ 大会・目標を追加</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 5: コーチへのメッセージ -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-number">五</div>
+      <div class="section-title">コーチ・顧問へのメッセージ</div>
+      <div class="section-toggle open">▾</div>
+    </div>
+    <div class="section-body">
+
+      <div class="field-group">
+        <label class="field-label">コーチに指導してほしいこと<span class="required">*</span></label>
+        <div class="field-hint">具体的に書くほど、的確な指導につながります</div>
+        <textarea placeholder="試合中の間合いの取り方について、もっと実戦形式でフィードバックをいただきたいです。" data-required oninput="charCount(this); updateProgress()" id="coachMsg" style="min-height:100px"></textarea>
+        <div class="char-count" id="coachMsgCount">0 / 300文字</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">今の悩み・相談</label>
+        <textarea placeholder="得意な面が相手に読まれてしまい、一本になりにくくなっています。" oninput="charCount(this)" style="min-height:80px"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">稽古外で自分が取り組むこと</label>
+        <textarea placeholder="毎朝30分の素振り100本・体幹トレーニング・試合映像の自主分析" style="min-height:80px"></textarea>
+      </div>
+
+      <div class="divider"><div class="divider-line"></div><div class="divider-text">稽古への姿勢・覚悟</div><div class="divider-line"></div></div>
+
+      <div class="field-group">
+        <label class="field-label">今シーズンの「一言宣言」<span class="required">*</span></label>
+        <div class="field-hint">自分を奮い立たせる言葉。コーチと仲間に宣言してください。</div>
+        <input type="text" placeholder="「先を取り、一本で仕留める剣道を貫く」" data-required oninput="updateProgress()" style="font-family:'Noto Serif JP',serif;font-size:15px;font-weight:700;letter-spacing:.06em">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">覚悟レベル（今の本気度）</label>
+        <div class="slider-wrap">
+          <span style="font-size:12px;color:var(--steel-light);white-space:nowrap">まだまだ</span>
+          <input type="range" min="1" max="10" value="7" oninput="document.getElementById('commitVal').textContent=this.value+'/10'">
+          <span style="font-size:12px;color:var(--steel-light);white-space:nowrap">全力</span>
+          <div class="slider-value" id="commitVal">7/10</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 6: 振り返り（月次） -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-number">六</div>
+      <div class="section-title">月次振り返り・成長記録</div>
+      <div class="section-toggle open">▾</div>
+    </div>
+    <div class="section-body">
+
+      <div class="field-group">
+        <label class="field-label">振り返り対象月</label>
+        <input type="month" style="max-width:180px">
+      </div>
+
+      <div class="goal-matrix">
+        <div class="matrix-row">
+          <div class="matrix-header">項目</div>
+          <div class="matrix-header" style="border-left:1px solid rgba(255,255,255,0.1)">今月の成果</div>
+          <div class="matrix-header" style="border-left:1px solid rgba(255,255,255,0.1)">来月への課題</div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">技術面</div>
+          <div class="matrix-cell"><textarea placeholder="出小手の精度が上がった"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="引き技のバリエーション追加"></textarea></div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">精神面</div>
+          <div class="matrix-cell"><textarea placeholder="強豪相手でも慌てなくなった"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="負け試合後の切り替えを早くする"></textarea></div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">体力面</div>
+          <div class="matrix-cell"><textarea placeholder="5本連続で集中を保てた"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="大会後半の体力維持トレーニング"></textarea></div>
+        </div>
+        <div class="matrix-row">
+          <div class="matrix-row-label">チーム貢献</div>
+          <div class="matrix-cell"><textarea placeholder="後輩への技術指導を継続できた"></textarea></div>
+          <div class="matrix-cell"><textarea placeholder="声かけの頻度を増やす"></textarea></div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:20px">
+        <label class="field-label">今月の一句・一言（自由記入）</label>
+        <input type="text" placeholder="「迷わず打てば当たる」──今月感じた言葉" style="font-family:'Noto Serif JP',serif;font-style:italic">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-area">
+    <button class="submit-btn" onclick="submitForm()">✦ シートを提出する</button>
+    <button class="save-btn" onclick="saveDraft()">下書き保存</button>
+    <button class="print-btn" onclick="window.print()">🖨 印刷</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== MINDSET CARDS =====
+  const mindsetItems = [
+    { label: '打突の冴え', key: 'kire' },
+    { label: '足さばき', key: 'footwork' },
+    { label: '間合い管理', key: 'maai' },
+    { label: '攻めの圧力', key: 'seme' },
+    { label: '残心', key: 'zanshin' },
+    { label: '試合運び', key: 'shiai' },
+    { label: '体力・持久力', key: 'tairyoku' },
+    { label: '精神的強さ', key: 'mental' },
+  ];
+
+  const grid = document.getElementById('mindsetGrid');
+  mindsetItems.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'mindset-card';
+    card.innerHTML = `
+      <div class="mindset-card-label">${item.label}</div>
+      <div class="mindset-rating" data-key="${item.key}">
+        ${[1,2,3,4,5].map(n => `<span class="star" data-v="${n}" onclick="setStar(this)">★</span>`).join('')}
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  function setStar(el) {
+    const wrap = el.parentElement;
+    const val = +el.dataset.v;
+    wrap.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('lit', i < val));
+  }
+
+  // ===== WAZA SELECTOR =====
+  function toggleWaza(btn) {
+    const active = document.querySelectorAll('#wazaSelector .rank-btn.active');
+    if (btn.classList.contains('active')) {
+      btn.classList.remove('active');
+    } else if (active.length < 3) {
+      btn.classList.add('active');
+    } else {
+      showToast('得意技は最大3つまでです');
+    }
+  }
+
+  // ===== SECTION TOGGLE =====
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    const toggle = header.querySelector('.section-toggle');
+    body.classList.toggle('collapsed');
+    toggle.classList.toggle('open');
+  }
+
+  // ===== ADD ROWS =====
+  function addWeeklyRow() {
+    const tbody = document.getElementById('weeklyPlan');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><select style="padding:6px 8px;font-size:12px"><option>月</option><option>火</option><option>水</option><option>木</option><option>金</option><option>土</option><option>日</option></select></td>
+      <td><select style="width:100%;padding:6px 8px;font-size:12px"><option>基本稽古</option><option>打込み稽古</option><option>掛かり稽古</option><option>地稽古</option><option>試合稽古</option><option>体力強化</option><option>自主練</option><option>休養</option></select></td>
+      <td><input type="text" placeholder="90分"></td>
+      <td><input type="text" placeholder="重点項目"></td>`;
+    tbody.appendChild(tr);
+  }
+
+  function addTournamentRow() {
+    const tbody = document.getElementById('tournamentPlan');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="month" style="font-size:12px;padding:6px 8px"></td>
+      <td><input type="text" placeholder="県総体 個人戦"></td>
+      <td><input type="text" placeholder="ベスト8入賞"></td>
+      <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>`;
+    tbody.appendChild(tr);
+    tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // initial tournament rows
+  ['4月','6月','8月','11月','2月'].forEach(m => {
+    const labels = { '4月':'春季地区大会','6月':'県総体（個人）','8月':'合宿・練習試合','11月':'秋季大会','2月':'新人戦' };
+    const goals  = { '4月':'ベスト4','6月':'ベスト16','8月':'弱点集中強化','11月':'ベスト8','2月':'入賞' };
+    const tbody = document.getElementById('tournamentPlan');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${m}" style="font-size:12px;padding:6px 8px;width:80px"></td>
+      <td><input type="text" value="${labels[m]}" placeholder="大会名"></td>
+      <td><input type="text" value="${goals[m]}" placeholder="目標"></td>
+      <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // ===== CHAR COUNT =====
+  function charCount(el) {
+    const countEl = el.id === 'coachMsg' ? document.getElementById('coachMsgCount') : null;
+    if (countEl) countEl.textContent = el.value.length + ' / 300文字';
+  }
+
+  // ===== PROGRESS =====
+  function updateProgress() {
+    const required = document.querySelectorAll('[data-required]');
+    let filled = 0;
+    required.forEach(el => { if (el.value.trim()) filled++; });
+    const pct = Math.round((filled / required.length) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = '記入率 ' + pct + '%';
+  }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ===== GAS ENDPOINT =====
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbx-ufiVTVWvkWHi11eCGLRNDBUr8I7nxjgNlrjy-uxZ1AhOFEJUZi946RDE8xHiW4pSOg/exec';
+
+  // ===== 前回データ復元（氏名入力後にGASから取得）=====
+  let restoreTimer = null;
+  function onNameInput(el) {
+    updateProgress();
+    clearTimeout(restoreTimer);
+    const name = el.value.trim();
+    if (name.length < 2) return;
+    restoreTimer = setTimeout(() => fetchPrevData(name), 800);
+  }
+
+  async function fetchPrevData(name) {
+    try {
+      const res  = await fetch(GAS_URL + '?name=' + encodeURIComponent(name));
+      const json = await res.json();
+      if (json.status !== 'ok') return;
+      applyPrevData(json.data);
+      showToast('📋 ' + name + ' さんの前回データを復元しました');
+    } catch(e) { /* 初回や通信エラーは無視 */ }
+  }
+
+  function applyPrevData(data) {
+    // テキスト系フィールド
+    const fieldMap = [
+      ['チーム最重要目標', '[placeholder="インターハイ 県予選 優勝"]'],
+      ['個人最重要目標',   '[placeholder="個人戦 県ベスト16 / 一本勝ち率 60%以上"]'],
+      ['コーチへのメッセージ', '#coachMsg'],
+      ['一言宣言',         '[placeholder*="先を取り"]'],
+    ];
+    fieldMap.forEach(([key, sel]) => {
+      if (!data[key]) return;
+      const el = document.querySelector(sel);
+      if (el) el.value = data[key];
+    });
+
+    // 覚悟レベル
+    if (data['覚悟レベル']) {
+      const range = document.querySelector('input[type=range]');
+      if (range) {
+        range.value = data['覚悟レベル'];
+        document.getElementById('commitVal').textContent = data['覚悟レベル'] + '/10';
+      }
+    }
+
+    // 得意技
+    if (data['得意技']) {
+      const wazaList = data['得意技'].split('・');
+      document.querySelectorAll('#wazaSelector .rank-btn').forEach(btn => {
+        if (wazaList.includes(btn.textContent.trim())) btn.classList.add('active');
+      });
+    }
+
+    // 自己評価★
+    const starMap = {
+      '自己評価_打突の冴え': 'kire',  '自己評価_足さばき': 'footwork',
+      '自己評価_間合い管理': 'maai',  '自己評価_攻めの圧力': 'seme',
+      '自己評価_残心': 'zanshin',     '自己評価_試合運び': 'shiai',
+      '自己評価_体力持久力': 'tairyoku', '自己評価_精神的強さ': 'mental',
+    };
+    Object.entries(starMap).forEach(([key, dataKey]) => {
+      if (!data[key]) return;
+      const wrap = document.querySelector('[data-key="' + dataKey + '"]');
+      if (!wrap) return;
+      const n = parseInt(data[key]) || 0;
+      wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < n));
+    });
+
+    updateProgress();
+  }
+
+  // ===== データ収集 =====
+  function collectFormData() {
+    // 基本情報
+    const inputs = document.querySelectorAll('input[type=text], input[type=date], input[type=month], input[type=number], select, textarea');
+    const allVals = [];
+    inputs.forEach(el => allVals.push(el.value.trim()));
+
+    // 得意技
+    const waza = [...document.querySelectorAll('#wazaSelector .rank-btn.active')].map(b => b.textContent).join('・');
+
+    // 自己評価星
+    const stars = {};
+    document.querySelectorAll('.mindset-rating').forEach(wrap => {
+      const key = wrap.dataset.key;
+      const lit = wrap.querySelectorAll('.star.lit').length;
+      stars[key] = lit;
+    });
+
+    // 週間稽古
+    const weekly = [];
+    document.querySelectorAll('#weeklyPlan tr').forEach(tr => {
+      const cells = tr.querySelectorAll('select, input');
+      if (cells.length >= 4) weekly.push([cells[0].value, cells[1].value, cells[2].value, cells[3].value].join('/'));
+    });
+
+    // 大会スケジュール
+    const tournaments = [];
+    document.querySelectorAll('#tournamentPlan tr').forEach(tr => {
+      const cells = tr.querySelectorAll('input');
+      if (cells.length >= 3) tournaments.push([cells[0].value, cells[1].value, cells[2].value].join('/'));
+    });
+
+    // 覚悟レベル
+    const commitLevel = document.querySelector('input[type=range]')?.value || '';
+
+    // 必須フィールドだけ名前付きで取得
+    const req = document.querySelectorAll('[data-required]');
+    const named = {};
+    const labels = ['氏名','学年','チーム最重要目標','個人最重要目標','コーチへのメッセージ','一言宣言'];
+    req.forEach((el, i) => { named[labels[i] || ('field_'+i)] = el.value.trim(); });
+
+    return {
+      timestamp: new Date().toLocaleString('ja-JP'),
+      ...named,
+      得意技: waza,
+      自己評価_打突の冴え: stars.kire || 0,
+      自己評価_足さばき: stars.footwork || 0,
+      自己評価_間合い管理: stars.maai || 0,
+      自己評価_攻めの圧力: stars.seme || 0,
+      自己評価_残心: stars.zanshin || 0,
+      自己評価_試合運び: stars.shiai || 0,
+      自己評価_体力持久力: stars.tairyoku || 0,
+      自己評価_精神的強さ: stars.mental || 0,
+      覚悟レベル: commitLevel,
+      週間稽古計画: weekly.join(' | '),
+      大会スケジュール: tournaments.join(' | '),
+    };
+  }
+
+  // ===== SUBMIT（GAS送信） =====
+  async function submitForm() {
+    const required = document.querySelectorAll('[data-required]');
+    let ok = true;
+    required.forEach(el => {
+      if (!el.value.trim()) {
+        el.style.borderColor = 'var(--vermillion)';
+        el.style.boxShadow = '0 0 0 3px rgba(192,57,43,0.15)';
+        ok = false;
+        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 3000);
+      }
+    });
+    if (!ok) { showToast('⚠ 必須項目を記入してください'); return; }
+
+    if (GAS_URL === 'ここにGASのウェブアプリURLを貼り付ける') {
+      showToast('⚠ GAS_URL を設定してください（設定手順書を参照）');
+      return;
+    }
+
+    // ボタンをローディング状態に
+    const btn = document.querySelector('.submit-btn');
+    const orig = btn.textContent;
+    btn.textContent = '送信中…';
+    btn.disabled = true;
+
+    try {
+      const data = collectFormData();
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      // no-corsのため成功/失敗を判定できないが、GAS側でエラーなければOK
+      localStorage.removeItem('kendo_draft'); // 下書きクリア
+      showToast('✦ 提出しました！スプレッドシートに記録されました');
+      btn.textContent = '✓ 提出済み';
+      btn.style.background = 'linear-gradient(135deg,#2d6a4f,#1b4332)';
+    } catch (e) {
+      showToast('⚠ 送信に失敗しました。ネット接続を確認してください');
+      btn.textContent = orig;
+      btn.disabled = false;
+    }
+  }
+
+  // ===== 下書き保存（localStorage） =====
+  function saveDraft() {
+    const data = collectFormData();
+    localStorage.setItem('kendo_draft', JSON.stringify(data));
+    showToast('📋 下書きを保存しました（このブラウザに保存）');
+  }
+
+  // ===== 下書き復元 =====
+  function loadDraft() {
+    const raw = localStorage.getItem('kendo_draft');
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      const req = document.querySelectorAll('[data-required]');
+      const labels = ['氏名','学年','チーム最重要目標','個人最重要目標','コーチへのメッセージ','一言宣言'];
+      req.forEach((el, i) => { if (data[labels[i]]) el.value = data[labels[i]]; });
+      showToast('📋 前回の下書きを復元しました');
+      updateProgress();
+    } catch(e) {}
+  }
+
+  updateProgress();
+  loadDraft();
+</script>
+</body>
+</html>
