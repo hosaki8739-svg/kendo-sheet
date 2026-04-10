@@ -641,7 +641,7 @@
       <div class="grid-2">
         <div class="field-group">
           <label class="field-label">氏名<span class="required">*</span></label>
-          <input type="text" id="nameInput" placeholder="山田 一郎" data-required oninput="onNameInput(this)">
+          <input type="text" placeholder="山田 一郎" data-required oninput="updateProgress()">
         </div>
         <div class="field-group">
           <label class="field-label">学年・組<span class="required">*</span></label>
@@ -1077,77 +1077,8 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  // ===== GAS ENDPOINT =====
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbx-ufiVTVWvkWHi11eCGLRNDBUr8I7nxjgNlrjy-uxZ1AhOFEJUZi946RDE8xHiW4pSOg/exec';
-
-  // ===== 前回データ復元（氏名入力後にGASから取得）=====
-  let restoreTimer = null;
-  function onNameInput(el) {
-    updateProgress();
-    clearTimeout(restoreTimer);
-    const name = el.value.trim();
-    if (name.length < 2) return;
-    restoreTimer = setTimeout(() => fetchPrevData(name), 800);
-  }
-
-  async function fetchPrevData(name) {
-    try {
-      const res  = await fetch(GAS_URL + '?name=' + encodeURIComponent(name));
-      const json = await res.json();
-      if (json.status !== 'ok') return;
-      applyPrevData(json.data);
-      showToast('📋 ' + name + ' さんの前回データを復元しました');
-    } catch(e) { /* 初回や通信エラーは無視 */ }
-  }
-
-  function applyPrevData(data) {
-    // テキスト系フィールド
-    const fieldMap = [
-      ['チーム最重要目標', '[placeholder="インターハイ 県予選 優勝"]'],
-      ['個人最重要目標',   '[placeholder="個人戦 県ベスト16 / 一本勝ち率 60%以上"]'],
-      ['コーチへのメッセージ', '#coachMsg'],
-      ['一言宣言',         '[placeholder*="先を取り"]'],
-    ];
-    fieldMap.forEach(([key, sel]) => {
-      if (!data[key]) return;
-      const el = document.querySelector(sel);
-      if (el) el.value = data[key];
-    });
-
-    // 覚悟レベル
-    if (data['覚悟レベル']) {
-      const range = document.querySelector('input[type=range]');
-      if (range) {
-        range.value = data['覚悟レベル'];
-        document.getElementById('commitVal').textContent = data['覚悟レベル'] + '/10';
-      }
-    }
-
-    // 得意技
-    if (data['得意技']) {
-      const wazaList = data['得意技'].split('・');
-      document.querySelectorAll('#wazaSelector .rank-btn').forEach(btn => {
-        if (wazaList.includes(btn.textContent.trim())) btn.classList.add('active');
-      });
-    }
-
-    // 自己評価★
-    const starMap = {
-      '自己評価_打突の冴え': 'kire',  '自己評価_足さばき': 'footwork',
-      '自己評価_間合い管理': 'maai',  '自己評価_攻めの圧力': 'seme',
-      '自己評価_残心': 'zanshin',     '自己評価_試合運び': 'shiai',
-      '自己評価_体力持久力': 'tairyoku', '自己評価_精神的強さ': 'mental',
-    };
-    Object.entries(starMap).forEach(([key, dataKey]) => {
-      if (!data[key]) return;
-      const wrap = document.querySelector('[data-key="' + dataKey + '"]');
-      if (!wrap) return;
-      const n = parseInt(data[key]) || 0;
-      wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < n));
-    });
-
-    updateProgress();
-  }
+  // ===== GAS ENDPOINT (ここだけ書き換える) =====
+  const GAS_URL = 'ここにGASのウェブアプリURLを貼り付ける';
 
   // ===== データ収集 =====
   function collectFormData() {
