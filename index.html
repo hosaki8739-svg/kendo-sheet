@@ -1112,18 +1112,37 @@
   }
 
   function applyPrevData(data) {
-    // テキスト系フィールド
-    const fieldMap = [
+    const v = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+
+    // ID指定フィールド（全項目）
+    v('coachMsg',       data['コーチへのメッセージ']);
+    v('nayami',         data['今の悩み']);
+    v('jishuren',       data['稽古外の取り組み']);
+    v('kendoReki',      data['剣道歴']);
+    v('gijutsuKadai',   data['技術課題']);
+    v('shutokunWaza',   data['習得目標技']);
+    v('kokoroMokuhyo',  data['精神目標']);
+    v('jakuten',        data['克服する弱点']);
+    v('physicalKadai',  data['体力課題']);
+    v('suuchiMokuhyo',  data['数値目標']);
+
+    // placeholder指定フィールド
+    const pMap = [
       ['チーム最重要目標', '[placeholder="インターハイ 県予選 優勝"]'],
       ['個人最重要目標',   '[placeholder="個人戦 県ベスト16 / 一本勝ち率 60%以上"]'],
-      ['コーチへのメッセージ', '#coachMsg'],
       ['一言宣言',         '[placeholder*="先を取り"]'],
     ];
-    fieldMap.forEach(([key, sel]) => {
+    pMap.forEach(([key, sel]) => {
       if (!data[key]) return;
       const el = document.querySelector(sel);
       if (el) el.value = data[key];
     });
+
+    // 学年
+    if (data['学年']) {
+      const sel = document.querySelector('select[data-required]');
+      if (sel) sel.value = data['学年'];
+    }
 
     // 覚悟レベル
     if (data['覚悟レベル']) {
