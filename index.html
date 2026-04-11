@@ -664,7 +664,7 @@
         </div>
         <div class="field-group">
           <label class="field-label">剣道歴</label>
-          <input type="text" placeholder="7年（小学1年から）">
+          <input type="text" id="kendoReki" placeholder="7年（小学1年から）">
         </div>
         <div class="field-group">
           <label class="field-label">利き手・構え</label>
@@ -761,11 +761,11 @@
           <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;color:var(--vermillion);margin-bottom:10px;letter-spacing:.1em">⚔ 技術目標</div>
           <div class="field-group">
             <label class="field-label">主要技術課題</label>
-            <textarea placeholder="打突後の残心&#10;足幅の安定" style="min-height:70px"></textarea>
+            <textarea id="gijutsuKadai" placeholder="打突後の残心&#10;足幅の安定" style="min-height:70px"></textarea>
           </div>
           <div class="field-group">
             <label class="field-label">習得目標技</label>
-            <input type="text" placeholder="引き胴の精度向上">
+            <input type="text" id="shutokunWaza" placeholder="引き胴の精度向上">
           </div>
         </div>
         <!-- 精神 -->
@@ -773,11 +773,11 @@
           <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;letter-spacing:.1em">🧠 精神目標</div>
           <div class="field-group">
             <label class="field-label">心技体の「心」</label>
-            <textarea placeholder="先を取る剣道&#10;試合中の冷静さ" style="min-height:70px"></textarea>
+            <textarea id="kokoroMokuhyo" placeholder="先を取る剣道&#10;試合中の冷静さ" style="min-height:70px"></textarea>
           </div>
           <div class="field-group">
             <label class="field-label">克服する弱点</label>
-            <input type="text" placeholder="プレッシャー下での硬さ">
+            <input type="text" id="jakuten" placeholder="プレッシャー下での硬さ">
           </div>
         </div>
         <!-- 体力 -->
@@ -785,11 +785,11 @@
           <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;color:var(--accent-blue);margin-bottom:10px;letter-spacing:.1em">💪 体力目標</div>
           <div class="field-group">
             <label class="field-label">フィジカル課題</label>
-            <textarea placeholder="後半戦での体力維持&#10;下半身強化" style="min-height:70px"></textarea>
+            <textarea id="physicalKadai" placeholder="後半戦での体力維持&#10;下半身強化" style="min-height:70px"></textarea>
           </div>
           <div class="field-group">
             <label class="field-label">数値目標</label>
-            <input type="text" placeholder="体重 68kg / 垂直跳 +5cm">
+            <input type="text" id="suuchiMokuhyo" placeholder="体重 68kg / 垂直跳 +5cm">
           </div>
         </div>
       </div>
@@ -874,12 +874,12 @@
 
       <div class="field-group">
         <label class="field-label">今の悩み・相談</label>
-        <textarea placeholder="得意な面が相手に読まれてしまい、一本になりにくくなっています。" oninput="charCount(this)" style="min-height:80px"></textarea>
+        <textarea id="nayami" placeholder="得意な面が相手に読まれてしまい、一本になりにくくなっています。" oninput="charCount(this)" style="min-height:80px"></textarea>
       </div>
 
       <div class="field-group">
         <label class="field-label">稽古外で自分が取り組むこと</label>
-        <textarea placeholder="毎朝30分の素振り100本・体幹トレーニング・試合映像の自主分析" style="min-height:80px"></textarea>
+        <textarea id="jishuren" placeholder="毎朝30分の素振り100本・体幹トレーニング・試合映像の自主分析" style="min-height:80px"></textarea>
       </div>
 
       <div class="divider"><div class="divider-line"></div><div class="divider-text">稽古への姿勢・覚悟</div><div class="divider-line"></div></div>
@@ -1162,10 +1162,7 @@
 
   // ===== データ収集 =====
   function collectFormData() {
-    // 基本情報
-    const inputs = document.querySelectorAll('input[type=text], input[type=date], input[type=month], input[type=number], select, textarea');
-    const allVals = [];
-    inputs.forEach(el => allVals.push(el.value.trim()));
+    const v = id => (document.getElementById(id)?.value || '').trim();
 
     // 得意技
     const waza = [...document.querySelectorAll('#wazaSelector .rank-btn.active')].map(b => b.textContent).join('・');
@@ -1173,9 +1170,7 @@
     // 自己評価星
     const stars = {};
     document.querySelectorAll('.mindset-rating').forEach(wrap => {
-      const key = wrap.dataset.key;
-      const lit = wrap.querySelectorAll('.star.lit').length;
-      stars[key] = lit;
+      stars[wrap.dataset.key] = wrap.querySelectorAll('.star.lit').length;
     });
 
     // 週間稽古
@@ -1192,30 +1187,44 @@
       if (cells.length >= 3) tournaments.push([cells[0].value, cells[1].value, cells[2].value].join('/'));
     });
 
-    // 覚悟レベル
-    const commitLevel = document.querySelector('input[type=range]')?.value || '';
-
-    // 必須フィールドだけ名前付きで取得
-    const req = document.querySelectorAll('[data-required]');
-    const named = {};
-    const labels = ['氏名','学年','チーム最重要目標','個人最重要目標','コーチへのメッセージ','一言宣言'];
-    req.forEach((el, i) => { named[labels[i] || ('field_'+i)] = el.value.trim(); });
+    // 月次振り返り
+    const reviews = [];
+    document.querySelectorAll('.goal-matrix .matrix-row:not(:first-child)').forEach(row => {
+      const label = row.querySelector('.matrix-row-label')?.textContent?.trim() || '';
+      const cells = row.querySelectorAll('textarea');
+      if (cells.length >= 2) reviews.push(label + '：成果[' + cells[0].value + '] 課題[' + cells[1].value + ']');
+    });
 
     return {
-      timestamp: new Date().toLocaleString('ja-JP'),
-      ...named,
-      得意技: waza,
+      timestamp:        new Date().toLocaleString('ja-JP'),
+      氏名:             v('nameInput'),
+      学年:             document.querySelector('select[data-required]')?.value || '',
+      得意技:           waza,
+      剣道歴:           v('kendoReki'),
+      チーム最重要目標: document.querySelector('[placeholder="インターハイ 県予選 優勝"]')?.value || '',
+      個人最重要目標:   document.querySelector('[placeholder="個人戦 県ベスト16 / 一本勝ち率 60%以上"]')?.value || '',
+      技術課題:         v('gijutsuKadai'),
+      習得目標技:       v('shutokunWaza'),
+      精神目標:         v('kokoroMokuhyo'),
+      克服する弱点:     v('jakuten'),
+      体力課題:         v('physicalKadai'),
+      数値目標:         v('suuchiMokuhyo'),
       自己評価_打突の冴え: stars.kire || 0,
-      自己評価_足さばき: stars.footwork || 0,
+      自己評価_足さばき:   stars.footwork || 0,
       自己評価_間合い管理: stars.maai || 0,
       自己評価_攻めの圧力: stars.seme || 0,
-      自己評価_残心: stars.zanshin || 0,
-      自己評価_試合運び: stars.shiai || 0,
+      自己評価_残心:       stars.zanshin || 0,
+      自己評価_試合運び:   stars.shiai || 0,
       自己評価_体力持久力: stars.tairyoku || 0,
       自己評価_精神的強さ: stars.mental || 0,
-      覚悟レベル: commitLevel,
-      週間稽古計画: weekly.join(' | '),
+      週間稽古計画:     weekly.join(' | '),
       大会スケジュール: tournaments.join(' | '),
+      コーチへのメッセージ: v('coachMsg'),
+      今の悩み:         v('nayami'),
+      稽古外の取り組み: v('jishuren'),
+      覚悟レベル:       document.querySelector('input[type=range]')?.value || '',
+      一言宣言:         document.querySelector('[placeholder*="先を取り"]')?.value || '',
+      月次振り返り:     reviews.join(' / '),
     };
   }
 
