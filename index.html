@@ -1305,9 +1305,13 @@
     if (!raw) return;
     try {
       const data = JSON.parse(raw);
-      const req = document.querySelectorAll('[data-required]');
-      const labels = ['氏名','学年','チーム最重要目標','個人最重要目標','コーチへのメッセージ','一言宣言'];
-      req.forEach((el, i) => { if (data[labels[i]]) el.value = data[labels[i]]; });
+      // applyPrevDataと同じ全項目復元を使う
+      applyPrevData(data);
+      // 氏名だけ別途セット（applyPrevDataは氏名を含まないため）
+      if (data['氏名']) {
+        const nameEl = document.getElementById('nameInput');
+        if (nameEl) nameEl.value = data['氏名'];
+      }
       showToast('📋 前回の下書きを復元しました');
       updateProgress();
     } catch(e) {}
