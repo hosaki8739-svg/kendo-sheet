@@ -1314,7 +1314,7 @@
       }
       showToast('📋 前回の下書きを復元しました');
       updateProgress();
-    } catch(e) {}
+    } catch(e) { console.error('loadDraft error:', e); }
   }
 
 
@@ -1550,8 +1550,9 @@
   }
 
   updateProgress();
-  loadDraft();
   insertMemberSelector();
+  // DOM完全生成後にloadDraftを実行
+  setTimeout(loadDraft, 300);
 </script>
 </body>
 </html>
