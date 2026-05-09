@@ -1246,10 +1246,12 @@
     const v = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
 
     // ID指定フィールド（全項目）
-    v('coachMsg',       data['コーチへのメッセージ']);
-    v('nayami',         data['今の悩み']);
-    v('jishuren',       data['稽古外の取り組み']);
-    v('kendoReki',      data['剣道歴']);
+    v('coachMsg',         data['コーチへのメッセージ']);
+    v('nayami',           data['今の悩み']);
+    v('kendoReki',        data['剣道歴']);
+    v('monthSkill',       data['月次スキル']);
+    v('monthChallenge',   data['月次チャレンジ']);
+    v('nextMonthChallenge', data['来月チャレンジ']);
     v('gijutsuKadai',   data['技術課題']);
     v('shutokunWaza',   data['習得目標技']);
     v('kokoroMokuhyo',  data['精神目標']);
@@ -1307,10 +1309,18 @@
       wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < n));
     });
 
-    // 先月のチャレンジを表示
-    const lastChallenge = data['月次チャレンジ'] || '';
-    const el = document.getElementById('lastMonthChallenge');
-    if (el && lastChallenge) el.textContent = lastChallenge;
+    // 先月のチャレンジを表示（前回の来月チャレンジ）
+    const lastChallenge = data['来月チャレンジ'] || data['月次チャレンジ'] || '';
+    const lastEl = document.getElementById('lastMonthChallenge');
+    if (lastEl && lastChallenge) lastEl.textContent = lastChallenge;
+
+    // 難易度スライダー復元
+    if (data['月次難易度']) {
+      const flowVal = parseInt(data['月次難易度']) || 5;
+      const flowEl = document.getElementById('flowLevel');
+      if (flowEl) { flowEl.value = flowVal; updateFlowLabel(flowVal); }
+    }
+
     updateProgress();
   }
 
