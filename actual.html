@@ -727,6 +727,26 @@
     <div class="progress-label" id="progressLabel">記入率 0%</div>
   </div>
 
+  <!-- 氏名・学年 固定入力エリア -->
+  <div style="background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border-soft);box-shadow:var(--shadow-sm);padding:16px 20px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+    <div style="flex:1;min-width:160px;">
+      <label class="field-label" style="margin-bottom:5px;">氏名<span class="required">*</span></label>
+      <div class="field-hint" style="margin-bottom:5px;">入力後1秒で前回データを復元</div>
+      <input type="text" id="nameInput" placeholder="山田 一郎" data-required oninput="onNameInput(this)" style="margin:0;">
+    </div>
+    <div style="width:120px;flex-shrink:0;">
+      <label class="field-label" style="margin-bottom:5px;">学年<span class="required">*</span></label>
+      <select id="gakuNenSelect" data-required onchange="updateProgress()" style="margin:0;">
+        <option value="">選択</option>
+        <option>1年</option><option>2年</option><option>3年</option>
+      </select>
+    </div>
+    <div style="width:100px;flex-shrink:0;">
+      <label class="field-label" style="margin-bottom:5px;">組</label>
+      <input type="text" id="kumiInput" placeholder="2組" style="margin:0;">
+    </div>
+  </div>
+
   <!-- SECTION 2: チーム目標 -->
   <div class="section">
     <div class="section-header" onclick="toggleSection(this)">
@@ -987,21 +1007,6 @@
     </div>
     <div class="section-body">
       <div class="grid-2">
-        <div class="field-group">
-          <label class="field-label">氏名<span class="required">*</span></label>
-          <div class="field-hint">スペースあり・なし、半角・全角どちらでも復元できます</div>
-          <input type="text" id="nameInput" placeholder="山田 一郎" data-required oninput="onNameInput(this)">
-        </div>
-        <div class="field-group">
-          <label class="field-label">学年・組<span class="required">*</span></label>
-          <div style="display:flex;gap:8px">
-            <select data-required onchange="updateProgress()" style="width:100px;flex-shrink:0">
-              <option value="">選択</option>
-              <option>1年</option><option>2年</option><option>3年</option>
-            </select>
-            <input type="text" placeholder="2組" style="flex:1">
-          </div>
-        </div>
         <div class="field-group">
           <label class="field-label">段位・級</label>
           <select>
@@ -1266,7 +1271,7 @@
 
     // 学年
     if (data['学年']) {
-      const sel = document.querySelector('select[data-required]');
+      const sel = document.getElementById('gakuNenSelect');
       if (sel) sel.value = data['学年'];
     }
 
@@ -1340,7 +1345,7 @@
     return {
       timestamp:        new Date().toLocaleString('ja-JP'),
       氏名:             v('nameInput'),
-      学年:             document.querySelector('select[data-required]')?.value || '',
+      学年:             document.getElementById('gakuNenSelect')?.value || '',
       得意技:           waza,
       剣道歴:           v('kendoReki'),
       チーム最重要目標: document.querySelector('[placeholder="インターハイ 県予選 優勝"]')?.value || '',
