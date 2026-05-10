@@ -1065,6 +1065,13 @@
     <button class="print-btn" onclick="window.print()">🖨 印刷</button>
   </div>
 
+  <!-- 顧問用：振り返り一覧生成 -->
+  <div style="text-align:center;margin-top:12px;">
+    <button onclick="generatePrint()" style="background:none;border:1px solid var(--border);color:var(--ink-muted);padding:10px 20px;border-radius:999px;font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='var(--bg-warm)'" onmouseout="this.style.background='none'">
+      📋 顧問用：振り返り一覧を生成
+    </button>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1115,6 +1122,23 @@
   // ===== 来月チャレンジプレビュー（不要になったため空関数）=====
   function syncNextMonth() {}
   function syncNextMonthPreview() {}
+
+  // ===== 顧問用：振り返り一覧生成 =====
+  async function generatePrint() {
+    showToast('⏳ 一覧表を生成中...');
+    try {
+      const res = await fetch(GAS_URL + '?action=generatePrint');
+      const data = await res.json();
+      if (data.url) {
+        showToast('✅ 生成完了！開きます');
+        setTimeout(() => window.open(data.url, '_blank'), 1000);
+      } else {
+        showToast('⚠ 生成に失敗しました');
+      }
+    } catch(e) {
+      showToast('⚠ エラーが発生しました');
+    }
+  }
 
   // ===== FLOW LABEL =====
   function updateFlowLabel(val) {
