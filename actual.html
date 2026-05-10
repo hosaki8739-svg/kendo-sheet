@@ -1125,26 +1125,10 @@
 
   // ===== 顧問用：振り返り一覧生成 =====
   function generatePrint() {
-    showToast('⏳ 一覧表を生成中（30秒ほどかかります）...');
-    const cbName = 'gasPrintCb_' + Date.now();
-    const script = document.createElement('script');
-    window[cbName] = function(json) {
-      delete window[cbName];
-      document.head.removeChild(script);
-      if (json.status === 'ok' && json.url) {
-        showToast('✅ 生成完了！開きます');
-        setTimeout(() => window.open(json.url, '_blank'), 1000);
-      } else {
-        showToast('⚠ 生成に失敗しました');
-      }
-    };
-    script.src = GAS_URL + '?action=generatePrint&callback=' + cbName;
-    script.onerror = function() {
-      delete window[cbName];
-      document.head.removeChild(script);
-      showToast('⚠ エラーが発生しました');
-    };
-    document.head.appendChild(script);
+    showToast('⏳ GASで一覧表を生成します。新しいタブが開きます。');
+    setTimeout(() => {
+      window.open(GAS_URL + '?action=generatePrint', '_blank');
+    }, 500);
   }
 
   // ===== FLOW LABEL =====
