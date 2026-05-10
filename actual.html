@@ -846,55 +846,27 @@
     </div>
   </div>
 
-  <!-- SECTION 4: 稽古計画 -->
+  <!-- SECTION 4: 年間大会スケジュール -->
   <div class="section">
     <div class="section-header" onclick="toggleSection(this)">
       <div class="section-number">四</div>
-      <div class="section-title">稽古・強化スケジュール</div>
+      <div class="section-title">年間大会・目標スケジュール</div>
       <div class="section-toggle open">▾</div>
     </div>
     <div class="section-body">
 
-      <div class="field-group">
-        <label class="field-label">週間稽古計画</label>
-        <div class="field-hint">各曜日の稽古内容・強度を記入してください</div>
-        <table class="schedule-table">
-          <thead>
-            <tr>
-              <th style="width:80px">曜日</th>
-              <th>稽古種別</th>
-              <th style="width:100px">時間</th>
-              <th style="width:120px">重点項目</th>
-            </tr>
-          </thead>
-          <tbody id="weeklyPlan">
-            <tr>
-              <td><select style="padding:6px 8px;font-size:12px"><option>月</option><option>火</option><option>水</option><option>木</option><option>金</option><option>土</option><option>日</option></select></td>
-              <td><select style="width:100%;padding:6px 8px;font-size:12px"><option>基本稽古</option><option>打込み稽古</option><option>掛かり稽古</option><option>地稽古</option><option>試合稽古</option><option>体力強化</option><option>自主練</option><option>休養</option></select></td>
-              <td><input type="text" placeholder="90分"></td>
-              <td><input type="text" placeholder="面打ち基本"></td>
-            </tr>
-          </tbody>
-        </table>
-        <button class="add-row-btn" onclick="addWeeklyRow()">＋ 曜日を追加</button>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">年間大会・目標スケジュール</label>
-        <table class="schedule-table">
-          <thead>
-            <tr>
-              <th style="width:90px">時期</th>
-              <th>大会・目標イベント</th>
-              <th style="width:130px">目標</th>
-              <th style="width:40px"></th>
-            </tr>
-          </thead>
-          <tbody id="tournamentPlan">
-          </tbody>
-        </table>
-        <button class="add-row-btn" onclick="addTournamentRow()">＋ 大会・目標を追加</button>
-      </div>
+      <table class="schedule-table" style="width:100%">
+        <thead>
+          <tr>
+            <th style="width:80px">月</th>
+            <th>大会・イベント</th>
+            <th>目標・結果</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="tournamentPlan"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addTournamentRow()">＋ 行を追加</button>
 
     </div>
   </div>
@@ -903,7 +875,7 @@
   <div class="section">
     <div class="section-header" onclick="toggleSection(this)">
       <div class="section-number">五</div>
-      <div class="section-title">今月の振り返り</div>
+      <div class="section-title">今月のチャレンジ</div>
       <div class="section-toggle open">▾</div>
     </div>
     <div class="section-body">
@@ -919,7 +891,7 @@
         <div style="font-family:'Noto Serif JP',serif;font-size:16px;font-weight:900;color:var(--gold);letter-spacing:.15em;margin-bottom:16px;" id="thisMonthLabel">──月の振り返り</div>
 
         <div class="field-group">
-          <label class="field-label">① 今月の挑戦 <span style="font-size:11px;color:var(--ink-muted);font-weight:normal;">（チャレンジの確認）</span></label>
+          <label class="field-label">① 今月取り組むことは？</label>
           <textarea id="monthChallenge" placeholder="例：引き技からの連続技を実戦で使えるようにする。" style="min-height:90px" oninput="updateProgress(); syncNextMonth()"></textarea>
         </div>
 
@@ -929,7 +901,7 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label">③ 今月の挑戦の難易度感覚</label>
+          <label class="field-label">③ 今月の難易度感覚</label>
           <div style="margin-top:12px;">
             <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-muted);margin-bottom:6px;">
               <span>😴 やさしすぎる（退屈）</span>
@@ -1150,6 +1122,24 @@
     if (el) el.textContent = labels[n] || 'ちょうどいい';
   }
 
+  // initial tournament rows
+  (function() {
+    var months = ['4月','6月','8月','11月','2月'];
+    var labels = { '4月':'春季地区大会','6月':'県総体（個人）','8月':'合宿・練習試合','11月':'秋季大会','2月':'新人戦' };
+    var goals  = { '4月':'ベスト4','6月':'ベスト16','8月':'弱点集中強化','11月':'ベスト8','2月':'入賞' };
+    var tbody = document.getElementById('tournamentPlan');
+    if (!tbody) return;
+    months.forEach(function(m) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><input type="text" value="' + m + '" style="font-size:12px;padding:6px 8px;width:70px"></td>' +
+        '<td><input type="text" value="' + labels[m] + '" placeholder="大会名"></td>' +
+        '<td><input type="text" value="' + goals[m] + '" placeholder="目標"></td>' +
+        '<td><button class="del-btn" onclick="this.closest(\'tr\').remove()">×</button></td>';
+      tbody.appendChild(tr);
+    });
+  })();
+
   // ===== SECTION TOGGLE =====
   function toggleSection(header) {
     const body = header.nextElementSibling;
@@ -1159,17 +1149,6 @@
   }
 
   // ===== ADD ROWS =====
-  function addWeeklyRow() {
-    const tbody = document.getElementById('weeklyPlan');
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><select style="padding:6px 8px;font-size:12px"><option>月</option><option>火</option><option>水</option><option>木</option><option>金</option><option>土</option><option>日</option></select></td>
-      <td><select style="width:100%;padding:6px 8px;font-size:12px"><option>基本稽古</option><option>打込み稽古</option><option>掛かり稽古</option><option>地稽古</option><option>試合稽古</option><option>体力強化</option><option>自主練</option><option>休養</option></select></td>
-      <td><input type="text" placeholder="90分"></td>
-      <td><input type="text" placeholder="重点項目"></td>`;
-    tbody.appendChild(tr);
-  }
-
   function addTournamentRow() {
     const tbody = document.getElementById('tournamentPlan');
     const tr = document.createElement('tr');
@@ -1182,19 +1161,7 @@
     tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  // initial tournament rows
-  ['4月','6月','8月','11月','2月'].forEach(m => {
-    const labels = { '4月':'春季地区大会','6月':'県総体（個人）','8月':'合宿・練習試合','11月':'秋季大会','2月':'新人戦' };
-    const goals  = { '4月':'ベスト4','6月':'ベスト16','8月':'弱点集中強化','11月':'ベスト8','2月':'入賞' };
-    const tbody = document.getElementById('tournamentPlan');
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="text" value="${m}" style="font-size:12px;padding:6px 8px;width:80px"></td>
-      <td><input type="text" value="${labels[m]}" placeholder="大会名"></td>
-      <td><input type="text" value="${goals[m]}" placeholder="目標"></td>
-      <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>`;
-    tbody.appendChild(tr);
-  });
+
 
   // ===== CHAR COUNT =====
   function charCount(el) {
@@ -1389,7 +1356,6 @@
       自己評価_試合運び:   stars.shiai || 0,
       自己評価_体力持久力: stars.tairyoku || 0,
       自己評価_精神的強さ: stars.mental || 0,
-      週間稽古計画:     weekly.join(' | '),
       大会スケジュール: tournaments.join(' | '),
       コーチへのメッセージ: v('coachMsg'),
       今の悩み:         v('nayami'),
@@ -1511,8 +1477,8 @@
     const el1 = document.getElementById('lastMonthLabel');
     const el2 = document.getElementById('thisMonthLabel');
     const el3 = document.getElementById('nextMonthLabel');
-    if (el1) el1.textContent = lastM + '月のチャレンジ';
-    if (el2) el2.textContent = thisM + '月の振り返り';
+    if (el1) el1.textContent = lastM + '月のチャレンジ（前回）';
+    if (el2) el2.textContent = thisM + '月のチャレンジ';
     if (el3) el3.textContent = nextM + '月のチャレンジ（予定）';
   })();
 
