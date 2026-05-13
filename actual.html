@@ -656,21 +656,34 @@ function fetchPrevData(name) {
 function applyPrevData(data) {
   const v = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
 
-  v('coachMsg',           data['コーチへのメッセージ']);
-  v('nayami',             data['今の悩み']);
-  v('kendoReki',          data['剣道歴']);
-  v('monthSkill',         data['月次スキル']);
-  v('monthChallenge',     data['月次チャレンジ']);
-  v('nextMonthChallenge', data['来月チャレンジ']);
-  v('gijutsuKadai',       data['技術課題']);
-  v('shutokunWaza',       data['習得目標技']);
-  v('kokoroMokuhyo',      data['精神目標']);
-  v('jakuten',            data['克服する弱点']);
-  v('physicalKadai',      data['体力課題']);
-  v('suuchiMokuhyo',      data['数値目標']);
-  v('ichiGenSengen',      data['一言宣言']);
+  // ============================================================
+  // ✅ 復元する項目（シーズン通じて継続する情報）
+  // ============================================================
+  v('coachMsg',      data['コーチへのメッセージ']);
+  v('nayami',        data['今の悩み・相談'] || data['今の悩み']); // キー名両対応
+  v('kendoReki',     data['剣道歴']);
+  v('gijutsuKadai',  data['技術課題']);
+  v('shutokunWaza',  data['習得目標技']);
+  v('kokoroMokuhyo', data['精神目標']);
+  v('jakuten',       data['克服する弱点']);
+  v('physicalKadai', data['体力課題']);
+  v('suuchiMokuhyo', data['数値目標']);
+  v('ichiGenSengen', data['一言宣言']);
 
-  // チーム・個人目標
+  // ============================================================
+  // ❌ 復元しない項目（毎月新規入力）
+  //    monthChallenge    … 今月取り組むこと
+  //    monthSkill        … 気づきと成長
+  //    nextMonthChallenge… 来月のチャレンジ
+  //    flowLevel         … 難易度スライダー（毎月リセット）
+  // ============================================================
+
+  // ✅ 先月のチャレンジ：参考表示のみ（入力欄には入れない）
+  const lastChallenge = data['来月チャレンジ'] || data['月次チャレンジ'] || '';
+  const lastEl = document.getElementById('lastMonthChallenge');
+  if (lastEl && lastChallenge) lastEl.textContent = lastChallenge;
+
+  // ✅ チーム・個人目標（継続情報）
   const pMap = [
     ['チーム最重要目標', '[placeholder="インターハイ 県予選 優勝"]'],
     ['個人最重要目標',   '[placeholder="個人戦 県ベスト16 / 一本勝ち率 60%以上"]'],
@@ -681,13 +694,13 @@ function applyPrevData(data) {
     if (el) el.value = data[key];
   });
 
-  // 学年
+  // ✅ 学年
   if (data['学年']) {
     const sel = document.getElementById('gakuNenSelect');
     if (sel) sel.value = data['学年'];
   }
 
-  // 覚悟レベル
+  // ✅ 覚悟レベル
   if (data['覚悟レベル']) {
     const range = document.getElementById('commitRange');
     if (range) {
@@ -696,7 +709,7 @@ function applyPrevData(data) {
     }
   }
 
-  // 得意技
+  // ✅ 得意技
   if (data['得意技']) {
     const wazaList = data['得意技'].split('・');
     document.querySelectorAll('#wazaSelector .rank-btn').forEach(btn => {
@@ -704,12 +717,16 @@ function applyPrevData(data) {
     });
   }
 
-  // 自己評価★
+  // ✅ 自己評価★
   const starMap = {
-    '自己評価_打突の冴え': 'kire',  '自己評価_足さばき': 'footwork',
-    '自己評価_間合い管理': 'maai',  '自己評価_攻めの圧力': 'seme',
-    '自己評価_残心': 'zanshin',     '自己評価_試合運び': 'shiai',
-    '自己評価_体力持久力': 'tairyoku', '自己評価_精神的強さ': 'mental',
+    '自己評価_打突の冴え': 'kire',
+    '自己評価_足さばき':   'footwork',
+    '自己評価_間合い管理': 'maai',
+    '自己評価_攻めの圧力': 'seme',
+    '自己評価_残心':       'zanshin',
+    '自己評価_試合運び':   'shiai',
+    '自己評価_体力持久力': 'tairyoku',
+    '自己評価_精神的強さ': 'mental',
   };
   Object.entries(starMap).forEach(([key, dataKey]) => {
     if (!data[key]) return;
@@ -718,18 +735,6 @@ function applyPrevData(data) {
     const n = parseInt(data[key]) || 0;
     wrap.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('lit', i < n));
   });
-
-  // 先月チャレンジ表示
-  const lastChallenge = data['来月チャレンジ'] || data['月次チャレンジ'] || '';
-  const lastEl = document.getElementById('lastMonthChallenge');
-  if (lastEl && lastChallenge) lastEl.textContent = lastChallenge;
-
-  // 難易度スライダー
-  if (data['月次難易度']) {
-    const flowVal = parseInt(data['月次難易度']) || 5;
-    const flowEl  = document.getElementById('flowLevel');
-    if (flowEl) { flowEl.value = flowVal; updateFlowLabel(flowVal); }
-  }
 
   updateProgress();
 }
@@ -776,7 +781,7 @@ function collectFormData() {
     自己評価_精神的強さ:  stars.mental   || 0,
     大会スケジュール:     tournaments.join(' | '),
     コーチへのメッセージ: v('coachMsg'),
-    今の悩み:             v('nayami'),
+    今の悩み・相談:       v('nayami'),
     覚悟レベル:           document.getElementById('commitRange')?.value || '',
     一言宣言:             v('ichiGenSengen'),
     振り返り月:           (new Date().getMonth() + 1) + '月',
